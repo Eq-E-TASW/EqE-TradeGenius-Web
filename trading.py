@@ -107,7 +107,7 @@ def app():
     st.write(f"#### Total: {total:,.2f}")
 
     # Seleccionar ticker
-    ticker_options = ["Seleccionar..."] + [result[0] for result in db.query(UserAssets.symbol).filter(UserAssets.user_id == user_id).all()]
+    ticker_options = ["Seleccionar..."] + [result[0] for result in db.query(HistoricalData.symbol).distinct().all()]
     ticker = st.selectbox("Selecciona el ticker para la operación:", ticker_options)
 
     # Seleccionar cantidad
