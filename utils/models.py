@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, UniqueConstraint
-from database import Base  
+from utils.database import Base  
 
 class PredictionLog(Base):
     __tablename__ = "prediction_log"
@@ -30,3 +30,26 @@ class HistoricalData(Base):
     # Evita que el mismo símbolo con la misma fecha se repita
     __table_args__ = (UniqueConstraint('symbol', 'date', name='_symbol_date_uc'),)
 
+class UserAssets(Base):
+    __tablename__ = 'user_assets'
+
+    user_id = Column(Integer, primary_key=True)
+    symbol = Column(String, primary_key=True)  # Clave primaria compuesta
+    quantity = Column(Integer, nullable=False)
+    current_price = Column(Float, nullable=False)
+
+    def __repr__(self):
+        return f"<UserAssets(user_id={self.user_id}, symbol='{self.symbol}', quantity={self.quantity}, current_price={self.current_price})>"
+
+class TradingHistory(Base):
+    __tablename__ = 'trading_history'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Identificador único para cada transacción
+    user_id = Column(Integer, nullable=False)
+    symbol = Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)  # Positivo para compras, negativo para ventas
+    buy_price = Column(Float, nullable=False)
+    date = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<TradingHistory(id={self.id}, user_id={self.user_id}, symbol='{self.symbol}', quantity={self.quantity}, buy_price={self.buy_price}, date={self.date})>"

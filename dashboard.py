@@ -1,17 +1,14 @@
 import streamlit as st
 from sqlalchemy.orm import Session
-from database import SessionLocal, get_db
-from models import HistoricalData
-from funtions import get_date_range
+from utils.database import SessionLocal, get_db
+from utils.models import HistoricalData
+from utils.funtions import get_date_range
 from sqlalchemy import desc, func, and_
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 def app():
-    
-    # Mostrar encabezados
-    st.subheader("👋 Bienvenid@")
-    st.markdown("---")
+
     st.title("📊 Visualización de Precios")
 
     # Solicitar al usuario los símbolos de valor a analizar, separados por coma
@@ -66,6 +63,7 @@ def app():
         db = next(get_db())  # Obtienes la sesión de la base de datos
         
         data_found = False
+        missing_tickers = []  # Lista para los tickers no encontrados
 
         # Crear el gráfico
         plt.figure(figsize=(10, 6))
@@ -82,6 +80,12 @@ def app():
                     HistoricalData.date <= end_date
                 )
             ).order_by(HistoricalData.date).all()
+            
+            if not data:
+                missing_tickers.append(ticker)
+                st.warning(f"No se encontraron datos para el ticker {ticker}.")
+                return  # Salir si no hay datos disponibles
+            
             
             data_found = True
 
@@ -171,6 +175,7 @@ def app():
                 ).order_by(HistoricalData.date).all()
                 
                 if not data:
+                    missing_tickers.append(ticker)
                     continue  # Si no hay datos para el ticker, saltarlo
                 
                 data_found = True
@@ -251,9 +256,13 @@ def app():
                 )
 
         if not data_found:
-            st.warning("No se encontraron datos para los criterios seleccionados.")
+            st.warning("No se encontraron datos para los tickers seleccionados.")
             return 
         
+        # Mostrar advertencia para los tickers no encontrados
+        if missing_tickers:
+            st.error(f"No se encontraron datos para los siguientes tickers: {', '.join(missing_tickers)}")
+
         if len(tickers) == 1:
             st.write(f"**Ticker:** {tickers[0]}")
         else:
@@ -273,10 +282,7 @@ def app():
     st.subheader('Volumen Actual de Transacciones ')
 
     def plot_last_volume():
-
         db = next(get_db())  # Obtienes la sesión de la base de datos
-        
-        data_found = False
 
         # Colores para los tickers
         colors = ["blue", "green", "red", "orange", "purple"]
@@ -284,6 +290,7 @@ def app():
         # Datos para graficar
         volumes = []
         dates = []
+        valid_tickers = []  # Lista para guardar tickers con datos válidos
 
         for ticker in tickers:
             # Consultar el último registro de volumen para cada ticker
@@ -292,37 +299,38 @@ def app():
             ).order_by(HistoricalData.date.desc()).first()
             
             if result:
-                data_found = True
                 volumes.append(result.volume)
                 dates.append(result.date.strftime("%Y-%m-%d"))
+                valid_tickers.append(ticker)  # Agregar solo tickers con datos
+
+        # Verificar si se encontraron datos
+        if not valid_tickers:
+            if len(tickers) == 1:
+                st.warning(f"No se encontraron datos para el ticker {ticker}.")
             else:
-                volumes.append(0)  # Sin datos
-                dates.append("N/A")
-
-
-        if not data_found:
-            st.warning("No se encontraron datos para los criterios seleccionados.")
+                st.warning("No se encontraron datos para los tickers seleccionados.")
             return
-        
+
         # Crear el gráfico
         plt.figure(figsize=(10, 6))
-        bars = plt.bar(tickers, volumes, color=colors, alpha=0.8)
+        bars = plt.bar(valid_tickers, volumes, color=colors[:len(valid_tickers)], alpha=0.8)
 
         # Agregar etiquetas con las fechas en cada barra
-        for bar, date in zip(bars, dates):
+        for bar, volume, date in zip(bars, volumes, dates):
             height = bar.get_height()
-            plt.text(bar.get_x() + bar.get_width() / 2, height + 1, date, ha="center", fontsize=10)
+            plt.text(bar.get_x() + bar.get_width() / 2, height + 1, f"{volume}", ha="center", fontsize=10)
 
         # Configuración del gráfico
         plt.xlabel("Tickers")
         plt.ylabel("Volumen")
         plt.xticks(rotation=45)
         plt.gca().spines["top"].set_visible(False)
-        plt.gca().spines["right"].set_visible(False) 
+        plt.gca().spines["right"].set_visible(False)
 
         # Mostrar en Streamlit
         st.pyplot(plt)
 
+    
     with st.spinner("Generando gráfico, por favor espera..."):
         plot_last_volume()
 

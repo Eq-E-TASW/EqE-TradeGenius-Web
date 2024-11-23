@@ -4,10 +4,26 @@ from tavily import TavilyClient
 from openai import OpenAI
 import pandas as pd
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-# Configuración de las API keys 
-#TAVILY_API_KEY = ""  
-#OPENAI_API_KEY = ""
+# Cargar el archivo .env en local
+load_dotenv()
+
+# Intentar obtener la clave API desde las variables de entorno locales
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Si no está en las variables de entorno locales, verificar si está en los secretos de Streamlit
+if not OPENAI_API_KEY and "OPENAI_API_KEY" in st.secrets:
+    OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+
+# Intentar obtener la clave API desde las variables de entorno locales
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
+# Si no está en las variables de entorno locales, verificar si está en los secretos de Streamlit
+if not TAVILY_API_KEY and "TAVILY_API_KEY" in st.secrets:
+    TAVILY_API_KEY = st.secrets["TAVILY_API_KEY"]
+    
 
 def get_news_from_tavily(query, max_results=5):
     try:

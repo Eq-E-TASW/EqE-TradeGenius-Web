@@ -1,9 +1,9 @@
 import streamlit as st
 from sqlalchemy.orm import Session
-from database import SessionLocal, get_db
-from models import HistoricalData, PredictionLog
-from funtions import get_date_range, create_prediction_log, plot_predictions
-from PredModels import lstm, svm
+from utils.database import SessionLocal, get_db
+from utils.models import HistoricalData, PredictionLog
+from utils.funtions import get_date_range, create_prediction_log, plot_predictions
+from predmodels import lstm, svm
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt

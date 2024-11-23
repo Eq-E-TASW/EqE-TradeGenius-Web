@@ -7,7 +7,7 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
 from sqlalchemy.orm import Session
-from models import HistoricalData
+from utils.models import HistoricalData
 
 # Función para verificar si los datos existen en la base de datos
 def check_data_exists(db: Session, ticker: str, date: datetime):

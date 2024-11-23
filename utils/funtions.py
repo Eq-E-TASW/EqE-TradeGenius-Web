@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from models import PredictionLog
+from utils.models import PredictionLog
 from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns

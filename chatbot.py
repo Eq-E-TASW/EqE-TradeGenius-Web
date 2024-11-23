@@ -1,9 +1,21 @@
 import streamlit as st
 from openai import OpenAI
 import time
+import os
+from dotenv import load_dotenv
+
+# Cargar el archivo .env en local
+load_dotenv()
+
+# Intentar obtener la clave API desde las variables de entorno locales
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Si no está en las variables de entorno locales, verificar si está en los secretos de Streamlit
+if not OPENAI_API_KEY and "OPENAI_API_KEY" in st.secrets:
+    OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
 # Configurar el cliente de OpenAI
-#client = OpenAI()
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Estilos CSS personalizados
 st.markdown("""
@@ -36,7 +48,7 @@ def initialize_session_state():
     """Initialize session state variables"""
     if 'messages' not in st.session_state:
         st.session_state.messages = [
-            {"sender": "Bot", "message": "¡Hola! Soy tu asistente de chatbot. ¿En qué puedo ayudarte hoy?"}
+            {"sender": "Bot", "message": "¡Hola! Soy Finn, tu asistente chatbot en temas financieros. ¿En qué puedo ayudarte hoy?"}
         ]
     if 'input' not in st.session_state:
         st.session_state.input = ""
@@ -79,7 +91,7 @@ def on_input_change():
 def app():
     initialize_session_state()
     
-    st.title("🤖💬 SADVB - Chatbot")
+    st.title("🤖💬 Finn - El Gurú del Business")
     
     # Contenedor para los mensajes
     chat_container = st.container()
