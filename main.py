@@ -3,11 +3,22 @@ from streamlit_option_menu import option_menu
 import requests  
 import os
 from dotenv import load_dotenv
+import time
 
 # Configuración de la página
-st.set_page_config(page_title="G7-SADVB", page_icon="📈")
+st.set_page_config(page_title="G7-TradeGenius", page_icon="📈")
 
 import trading, chatbot, dashboard, prediction, sentiment
+
+# Verificar si es la primera vez que se carga la página
+if "page_loaded" not in st.session_state:
+    st.session_state["page_loaded"] = False  # Inicializa el estado
+
+if not st.session_state["page_loaded"]:
+    st.session_state["page_loaded"] = True  # Marca la página como cargada
+    time.sleep(1)  # Espera un segundo antes de hacer el rerun
+    st.rerun()  # Ejecuta el rerun para asegurar que los elementos se carguen correctamente
+    
 
 # Inicializar estado de sesión si no existe
 if "logged_in" not in st.session_state:

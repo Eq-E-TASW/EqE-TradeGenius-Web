@@ -89,18 +89,22 @@ def app():
                 "Ticker": asset.symbol,
                 "Cantidad": asset.quantity,
                 "Precio Unitario": asset.current_price,
-                "Precio Total": asset.quantity * asset.current_price
+                "Sub Total": asset.quantity * asset.current_price
             }
             for asset in user_assets
         ]
         df = pd.DataFrame(data)
     else:
-        df = pd.DataFrame(columns=["Ticker", "Cantidad", "Precio Unitario", "Precio Total"])
+        df = pd.DataFrame(columns=["Ticker", "Cantidad", "Precio Unitario", "Sub Total"])
 
     df = df.loc[:, ~df.columns.str.match('^Unnamed')]
 
     st.write("#### Inventario Actual:")
     st.dataframe(df, use_container_width=True)
+
+    total = df["Sub Total"].sum()
+    # Imprimir el total
+    st.write(f"#### Total: {total:,.2f}")
 
     # Seleccionar ticker
     ticker_options = ["Seleccionar..."] + [result[0] for result in db.query(UserAssets.symbol).filter(UserAssets.user_id == user_id).all()]

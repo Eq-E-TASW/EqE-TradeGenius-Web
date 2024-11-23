@@ -91,7 +91,7 @@ def app():
     if st.button("Analizar Noticias"):
         if search_query:
             try:
-                with st.spinner("Buscando noticias..."):
+                with st.spinner("Realizando análisis..."):
                     # Obtener titulares con Tavily
                     headlines = get_news_from_tavily(search_query)
                     
