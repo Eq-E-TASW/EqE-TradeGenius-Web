@@ -94,7 +94,6 @@ def predict_with_svm(ticker: str, db: Session, time_step=15, forecast_days=10):
     future_prices = scaler.inverse_transform(np.array(future_prices).reshape(-1, 1)).flatten()
 
     # Obtener los precios reales (últimos conocidos)
-    #real_values = prices[-forecast_days:]  # Últimos precios reales
     real_values = prices
 
     return real_values, future_prices  # Retornar los valores reales y predichos

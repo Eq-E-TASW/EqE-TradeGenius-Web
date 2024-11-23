@@ -11,7 +11,7 @@ from utils.models import HistoricalData
 
 # Función para verificar si los datos existen en la base de datos
 def check_data_exists(db: Session, ticker: str, date: datetime):
-    start_date = date - timedelta(days=90)  # 1 año hacia atrás
+    start_date = date - timedelta(days=365)  # 1 año hacia atrás
     return db.query(HistoricalData).filter(
         HistoricalData.symbol == ticker,
         HistoricalData.date >= start_date,
@@ -20,7 +20,7 @@ def check_data_exists(db: Session, ticker: str, date: datetime):
 
 # Función para obtener datos históricos de un ticker
 def get_historical_data(ticker):
-    url = f"http://localhost:8001/historical-data/?ticker={ticker}&amount=3&unit=months&asset_type=stock"
+    url = f"http://localhost:8001/historical-data/?ticker={ticker}&amount=1&unit=years&asset_type=stock"
     response = requests.get(url)
     data = pd.read_csv(io.StringIO(response.text))
     return data[['Date', 'Close']]  # Solo obtener 'Date' y 'Close'
@@ -61,7 +61,7 @@ def train_lstm_model(data, time_step=15):
     return model, scaler
 
 def get_historical_data_from_db(db: Session, ticker: str, current_date: datetime):
-    one_month_ago = current_date - timedelta(days=90)
+    one_month_ago = current_date - timedelta(days=365)
     return db.query(HistoricalData).filter(
         HistoricalData.symbol == ticker,
         HistoricalData.date >= one_month_ago
