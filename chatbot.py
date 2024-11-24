@@ -62,7 +62,7 @@ def send_message(user_input):
         st.session_state.messages.append({"sender": "User", "message": user_input})
         
         # Crear el historial de mensajes para la API
-        api_messages = [{"role": "system", "content": "Eres un asistente amigable que ayuda con información financiera y general."}]
+        api_messages = [{"role": "system", "content": "Eres Finn, un asistente amigable que ayuda con información financiera y general."}]
         for msg in st.session_state.messages[:-1]:
             role = "user" if msg["sender"] == "User" else "assistant"
             api_messages.append({"role": role, "content": msg["message"]})
