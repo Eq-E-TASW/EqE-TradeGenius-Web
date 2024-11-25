@@ -1,110 +1,43 @@
 import streamlit as st
 import pandas as pd
-from sqlalchemy.orm import Session
 from utils.database import SessionLocal, get_db
-from utils.models import HistoricalData, UserAssets, TradingHistory
-from sqlalchemy import desc
+from utils.models import HistoricalData
 import time
-
-def update_current_prices(db: Session):
-    """Actualizar los precios actuales de los activos en UserAssets con el último precio de cierre."""
-    user_assets = db.query(UserAssets).all()
-
-    for asset in user_assets:
-        latest_price_entry = db.query(HistoricalData).filter(
-            HistoricalData.symbol == asset.symbol
-        ).order_by(desc(HistoricalData.date)).first()
-
-        if latest_price_entry:
-            asset.current_price = latest_price_entry.close
-
-    db.commit()
-
-def execute_trade(db: Session, user_id: int, symbol: str, quantity: int):
-    """Realizar una operación de compra o venta."""
-    latest_price_entry = db.query(HistoricalData).filter(
-        HistoricalData.symbol == symbol
-    ).order_by(desc(HistoricalData.date)).first()
-
-    if not latest_price_entry:
-        return "Error: Símbolo no válido"
-
-    buy_price = latest_price_entry.close
-
-    asset = db.query(UserAssets).filter(
-        UserAssets.user_id == user_id,
-        UserAssets.symbol == symbol
-    ).first()
-
-    if not asset:
-        if quantity < 0:
-            return "Error: No tienes suficientes acciones para vender"
-        asset = UserAssets(
-            user_id=user_id,
-            symbol=symbol,
-            quantity=quantity,
-            current_price=buy_price
-        )
-        db.add(asset)
-    else:
-        if quantity < 0 and abs(quantity) > asset.quantity:
-            return "Error: No tienes suficientes acciones para vender"
-
-        new_quantity = asset.quantity + quantity
-        new_price = asset.current_price
-
-        if quantity > 0:
-            total_cost = (asset.quantity * asset.current_price) + (quantity * buy_price)
-            new_price = total_cost / new_quantity
-
-        asset.quantity = new_quantity
-        asset.current_price = new_price
-
-    trade_history = TradingHistory(
-        user_id=user_id,
-        symbol=symbol,
-        quantity=quantity,
-        buy_price=buy_price
-    )
-    db.add(trade_history)
-    db.commit()
-
-    return "Operación exitosa: Datos actualizados"
+import requests
 
 def app():
 
-    db = next(get_db())  # Obtienes la sesión de la base de datos
+    db = next(get_db())  
 
     st.title("💹 Trading de Acciones")
 
-    # Actualizar precios actuales
-    update_current_prices(db)
+    #Id de usuario único
+    user_id=123
 
-    # Mostrar inventario del usuario
-    user_id = 123  # Asignar un ID de usuario por defecto
-    user_assets = db.query(UserAssets).filter(UserAssets.user_id == user_id).all()
-    if user_assets:
-        data = [
-            {
-                "Ticker": asset.symbol,
-                "Cantidad": asset.quantity,
-                "Precio Unitario": asset.current_price,
-                "Sub Total": asset.quantity * asset.current_price
-            }
-            for asset in user_assets
-        ]
-        df = pd.DataFrame(data)
-    else:
-        df = pd.DataFrame(columns=["Ticker", "Cantidad", "Precio Unitario", "Sub Total"])
-
-    df = df.loc[:, ~df.columns.str.match('^Unnamed')]
+    endpoint_url_get = (
+        f"https://tradegeniusbackcloud-registry-194080380757.southamerica-west1.run.app/api/trading/get_assets/{user_id}"
+    )
 
     st.write("#### Inventario Actual:")
-    st.dataframe(df, use_container_width=True)
+    try:
+        response_get = requests.get(endpoint_url_get, headers={"accept": "application/json"})
+        response_get.raise_for_status()
 
-    total = df["Sub Total"].sum()
-    # Imprimir el total
-    st.write(f"#### Total: {total:,.2f}")
+        data = response_get.json()["Assets"]
+        df = pd.DataFrame(data)
+        st.dataframe(df, use_container_width=True)
+
+        # Imprimir el total
+        st.markdown(
+            f"""
+            <div style="text-align: right; font-size: 20px;">
+                <strong>Total:</strong> {response_get.json()['Total']:.2f}
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error al obtener el inventario actual: {e}")
 
     # Seleccionar ticker
     ticker_options = ["Seleccionar..."] + [result[0] for result in db.query(HistoricalData.symbol).distinct().all()]
@@ -146,11 +79,46 @@ def app():
 
         if confirm:
             quantity = amount if trade == "Comprar" else -amount
-            result = execute_trade(db, user_id, ticker, quantity)
-            if "Error" in result:
-                st.error(result)
-            else:
-                st.success(result)
+            symbol = ticker
+
+             # Crear la operacion
+            operation = {
+                "user_id": user_id,       
+                "symbol": symbol,
+                "quantity": quantity
+            }
+
+            endpoint_url_post = (
+                f"https://tradegeniusbackcloud-registry-194080380757.southamerica-west1.run.app/api/trading/trade"
+            )
+
+            try:
+                # Hacer la solicitud POST con el body y los headers
+                response_post = requests.post(
+                    endpoint_url_post, 
+                    headers={"accept": "application/json", "Content-Type": "application/json"},
+                    json=operation  # Enviar el payload en el cuerpo
+                )
+                response_post.raise_for_status()  # Levanta una excepción si hay error en la respuesta
+                
+                # Manejar la respuesta del servidor
+                response_data = response_post.json()
+                success_message = response_data.get("message", "")
+                error_detail = response_data.get("detail", "")
+
+                # Mostrar mensajes según el contenido de la respuesta
+                if success_message:
+                    st.success(success_message)  # Mensaje de éxito
+                elif error_detail:
+                    st.error(error_detail)  # Mensaje de error
+
+            except requests.exceptions.RequestException as e:
+                # Manejar errores en la solicitud
+                st.error(f"Error en la solicitud: {e}")
+
             st.session_state.confirm = False
             time.sleep(1)
             st.rerun()
+
+
+

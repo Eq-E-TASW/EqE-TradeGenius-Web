@@ -2,18 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import streamlit as st
-import os
-from dotenv import load_dotenv
 
-# Cargar el archivo .env local
-load_dotenv()
-
-# Intentar obtener la clave API desde las variables de entorno locales
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-
-# Si no está en las variables de entorno locales, verificar si está en los secretos de Streamlit 
-if not SQLALCHEMY_DATABASE_URL and "SQLALCHEMY_DATABASE_URL" in st.secrets:
-    SQLALCHEMY_DATABASE_URL = st.secrets["SQLALCHEMY_DATABASE_URL"]
+SQLALCHEMY_DATABASE_URL="postgresql://postgres:ge-sadvb@34.135.17.9:5432/ge-sadvb-db"
 
 # Definir Base directamente en este archivo
 Base = declarative_base()

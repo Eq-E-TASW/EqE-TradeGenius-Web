@@ -1,8 +1,6 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 import requests  
-import os
-from dotenv import load_dotenv
 import time
 
 # Configuración de la página
@@ -19,22 +17,13 @@ if not st.session_state["page_loaded"]:
     time.sleep(1)  # Espera un segundo antes de hacer el rerun
     st.rerun()  # Ejecuta el rerun para asegurar que los elementos se carguen correctamente
     
-
 # Inicializar estado de sesión si no existe
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
     st.session_state["user_email"] = None
     st.session_state["id_token"] = None  # Token del usuario
 
-# Cargar el archivo .env local
-load_dotenv()
-
-# Intentar obtener la clave API desde las variables de entorno locales
-FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")
-
-# Si no está en las variables de entorno locales, verificar si está en los secretos de Streamlit
-if not FIREBASE_API_KEY and "FIREBASE_API_KEY" in st.secrets:
-    FIREBASE_API_KEY = st.secrets["FIREBASE_API_KEY"]
+FIREBASE_API_KEY="AIzaSyAN5U_DQyn7ISRhSSNIWCF18znnAdoYXf0"
 
 # Clase principal de la aplicación
 class MultiApp:

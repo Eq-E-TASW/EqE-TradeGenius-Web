@@ -1,21 +1,9 @@
 import streamlit as st
-from openai import OpenAI
 import time
-import os
-from dotenv import load_dotenv
+import requests
 
-# Cargar el archivo .env en local
-load_dotenv()
-
-# Intentar obtener la clave API desde las variables de entorno locales
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-# Si no está en las variables de entorno locales, verificar si está en los secretos de Streamlit
-if not OPENAI_API_KEY and "OPENAI_API_KEY" in st.secrets:
-    OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-
-# Configurar el cliente de OpenAI
-client = OpenAI(api_key=OPENAI_API_KEY)
+# URL base 
+BASE_API_URL = "https://tradegeniusbackcloud-registry-194080380757.southamerica-west1.run.app/api/chatbot" 
 
 # Estilos CSS personalizados
 st.markdown("""
@@ -45,38 +33,34 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def initialize_session_state():
-    """Initialize session state variables"""
+    """Initialize session state variables."""
     if 'messages' not in st.session_state:
-        st.session_state.messages = [
-            {"sender": "Bot", "message": "¡Hola! Soy Finn, tu asistente chatbot en temas financieros. ¿En qué puedo ayudarte hoy?"}
-        ]
+        # Obtener historial de mensajes desde la API
+        try:
+            response = requests.get(f"{BASE_API_URL}/messages")
+            response.raise_for_status()
+            messages = response.json().get("messages", [])
+            st.session_state.messages = messages or [{"sender": "Bot", "message": "¡Hola! Soy Finn, tu asistente chatbot en temas financieros. ¿En qué puedo ayudarte hoy?"}]
+        except Exception as e:
+            st.session_state.messages = [{"sender": "Bot", "message": f"Error al cargar historial: {e}"}]
     if 'input' not in st.session_state:
         st.session_state.input = ""
 
 def send_message(user_input):
     if not user_input.strip():
         return
-    
+
+    pass
+
     try:
-        # Agregar mensaje del usuario
-        st.session_state.messages.append({"sender": "User", "message": user_input})
-        
-        # Crear el historial de mensajes para la API
-        api_messages = [{"role": "system", "content": "Eres Finn, un asistente amigable que ayuda con información financiera y general."}]
-        for msg in st.session_state.messages[:-1]:
-            role = "user" if msg["sender"] == "User" else "assistant"
-            api_messages.append({"role": role, "content": msg["message"]})
-        api_messages.append({"role": "user", "content": user_input})
-        
-        # Obtener respuesta de OpenAI usando la nueva API
-        response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=api_messages
-        )
-        
-        bot_message = response.choices[0].message.content
-        st.session_state.messages.append({"sender": "Bot", "message": bot_message})
-        
+        # Enviar mensaje a la API
+        payload = {"message": user_input}
+        response = requests.post(f"{BASE_API_URL}/send-message", json=payload)
+        response.raise_for_status()
+
+        # Obtener la respuesta del bot desde la API
+        api_messages = response.json().get("messages", [])
+        st.session_state.messages.extend(api_messages[-2:])  # Añadir el último mensaje enviado y recibido
     except Exception as e:
         error_message = f"Error: {str(e)}"
         st.session_state.messages.append({"sender": "Bot", "message": error_message})
@@ -85,7 +69,7 @@ def on_input_change():
     user_input = st.session_state.text_input
     if user_input:
         send_message(user_input)
-        st.session_state.text_input = ""  # Clear the input
+        st.session_state.text_input = "" 
         time.sleep(0.1)  # Pequeña pausa para asegurar que los mensajes se actualicen
 
 def app():
