@@ -5,12 +5,12 @@ import streamlit as st
 
 SQLALCHEMY_DATABASE_URL="postgresql://postgres:ge-sadvb@34.135.17.9:5432/ge-sadvb-db"
 
-# Definir Base directamente en este archivo
 Base = declarative_base()
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Función para obtener la sesión con la base de datos remota
 def get_db():
     db = SessionLocal()
     try:

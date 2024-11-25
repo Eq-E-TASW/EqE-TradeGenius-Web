@@ -22,7 +22,7 @@ def app():
     # Input para el modelo
     model_name = st.selectbox("Selecciona el modelo a utilizar:", model_options)
 
-    # Construir la URL 
+    # Construimos las URL 
     endpoint_url_post = (
         f"https://tradegeniusbackcloud-registry-194080380757.southamerica-west1.run.app/api/prediction/predict/?ticker={ticker}&model={model_name}"
     )

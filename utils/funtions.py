@@ -2,10 +2,6 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from utils.models import PredictionLog
 from datetime import datetime
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-import streamlit as st
 
 # Función para calcular el rango de fechas
 def get_date_range(amount: int, unit: str):
@@ -24,6 +20,7 @@ def get_date_range(amount: int, unit: str):
     
     return start_date.strftime('%Y-%m-%d'), today.strftime('%Y-%m-%d')
 
+# Función para registrar la operación en la base de datos
 def create_prediction_log(db: Session, ticker: str, model_used: str, predicted_date: datetime, predicted_close_price: float):
     log_entry = PredictionLog(
         ticker=ticker,

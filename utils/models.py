@@ -2,6 +2,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, UniqueConstraint, Text
 from utils.database import Base  
 
+# Clase que representa los registros de las predicciones realizadas
 class PredictionLog(Base):
     __tablename__ = "prediction_log"
 
@@ -15,6 +16,7 @@ class PredictionLog(Base):
     def __repr__(self):
         return f"<PredictionLog(ticker={self.ticker}, model={self.model_used}, date={self.predicted_date}, price={self.predicted_close_price})>"
 
+# Clase que representa los datos históricos de los activos financieros
 class HistoricalData(Base):
     __tablename__ = "historical_data"
 
@@ -30,17 +32,19 @@ class HistoricalData(Base):
     # Evita que el mismo símbolo con la misma fecha se repita
     __table_args__ = (UniqueConstraint('symbol', 'date', name='_symbol_date_uc'),)
 
+#  Clase que representa los activos financieros que posee cada usuario en el sistema
 class UserAssets(Base):
     __tablename__ = 'user_assets'
 
     user_id = Column(Integer, primary_key=True)
-    symbol = Column(String, primary_key=True)  # Clave primaria compuesta
+    symbol = Column(String, primary_key=True)  
     quantity = Column(Integer, nullable=False)
     current_price = Column(Float, nullable=False)
 
     def __repr__(self):
         return f"<UserAssets(user_id={self.user_id}, symbol='{self.symbol}', quantity={self.quantity}, current_price={self.current_price})>"
 
+# Clase que representa el historial de transacciones realizadas por los usuarios
 class TradingHistory(Base):
     __tablename__ = 'trading_history'
 

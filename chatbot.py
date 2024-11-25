@@ -33,7 +33,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def initialize_session_state():
-    """Initialize session state variables."""
     if 'messages' not in st.session_state:
         # Obtener historial de mensajes desde la API
         try:
@@ -49,7 +48,7 @@ def initialize_session_state():
 def send_message(user_input):
     if not user_input.strip():
         return
-
+    
     pass
 
     try:

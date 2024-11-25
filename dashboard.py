@@ -106,8 +106,6 @@ def app():
         st.warning("Por favor, ingrese al menos un símbolo de valor.")
         return
     
-
-
     # Mostrar la imagen en Streamlit
     if image1 is not None:
         st.markdown("---")
