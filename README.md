@@ -32,8 +32,8 @@ Para ejecutar este sistema en tu máquina local, necesitarás:
 ## Login de Usuario:
 
 El sistema incluye una sección de inicio de sesión para acceder a las funcionalidades del sistema. Puedes probarlo con el siguiente usuario de prueba:
-Usuario: test@123.com
-Contraseña: test123
+- Usuario: test@123.com
+- Contraseña: test123
 
 ## Despliegue en Streamlit Cloud:
 
