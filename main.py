@@ -73,9 +73,6 @@ class MultiApp:
 
 # Función para autenticar usuario con Firebase REST API
 def authenticate_user(email, password):
-    """
-    Verifica si las credenciales del usuario son válidas mediante Firebase REST API.
-    """
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
     payload = {
         "email": email,
@@ -109,7 +106,7 @@ def login():
     col1, col2 = st.columns([1.5, 2])  
 
     with col1:
-        # Mostrar la imagen
+        # Logo del Sistema
         st.image("images/logoApp.png")
 
     with col2:

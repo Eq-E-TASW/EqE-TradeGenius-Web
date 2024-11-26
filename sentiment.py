@@ -3,12 +3,9 @@ import requests
 import pandas as pd
 
 # Base URL del API
-API_BASE_URL = "http://127.0.0.1:8000"  
+API_BASE_URL = "https://tradegeniusbackcloud-registry-194080380757.southamerica-west1.run.app/api/sentiment"  
 
 def get_news_analysis(query, max_results):
-    """
-    Función para realizar la solicitud al endpoint FastAPI.
-    """
     try:
         # Formar la URL del endpoint
         url = f"{API_BASE_URL}/analyze-news"
