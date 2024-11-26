@@ -39,7 +39,7 @@ El sistema incluye una sección de inicio de sesión para acceder a las funciona
 
 El sistema ha sido desplegado en **Streamlit Cloud** para su fácil acceso y uso. Puedes acceder a la versión en la nube del proyecto a través del siguiente enlace:
 
-🚀☁️ [**Acceder a TradeGenius en Streamlit Cloud**](https://streamlit.io/)
+🚀☁️ [**Acceder a TradeGenius en Streamlit Cloud**](https://tradegeniusweb.streamlit.app/)
 
 ## Video de Demostración:
 
