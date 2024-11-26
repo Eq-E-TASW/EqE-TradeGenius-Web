@@ -26,7 +26,7 @@
 ## Requisitos
 
 Para ejecutar este sistema en tu máquina local, necesitarás:
-- Python 3.x
+- Python 3.10 o superior
 - Librerías de Python necesarias (instaladas a través de `requirements.txt`)
 
 ## Login de Usuario:
