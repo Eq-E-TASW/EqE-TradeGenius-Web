@@ -4,7 +4,7 @@ import requests
 import time
 
 # Configuración de la página
-st.set_page_config(page_title="G7-TradeGenius", page_icon="📈")
+st.set_page_config(page_title="EqE-TradeGenius", page_icon="📈")
 
 import trading, chatbot, dashboard, prediction, sentiment
 
